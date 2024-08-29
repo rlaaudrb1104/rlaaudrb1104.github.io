@@ -1,0 +1,3 @@
+css-attack {
+  background-image: url("javascript:alert('XSS')")
+}

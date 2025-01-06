@@ -1,4 +1,4 @@
-GIF89a;
+ÿØÿà
 <?php
     echo "Hello World!";
 ?>

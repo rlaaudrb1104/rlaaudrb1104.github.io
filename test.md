@@ -1,3 +1,4 @@
+```diff
 <?php
 namespace um\core;
 
@@ -57,3 +58,4 @@ if ( ! class_exists( 'um\core\Register' ) ) {
 	}
 }
 ?>
+```

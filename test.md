@@ -1,61 +1,31 @@
 ```diff
-<?php
-namespace um\core;
+--- slider-wd/trunk/admin/views/Sliders.php	(r3103665)
++++ slider-wd/trunk/admin/views/Sliders.php	(r3114483)
+@@ -93,7 +93,7 @@
+   <a href="<?php echo $edit_url; ?>">
+     <span class="media-icon image-icon">
+-      <img class="preview-image" title="<?php echo $row->name; ?>" src="<?php echo $preview_image; ?>" width="60" height="60" />
++      <img class="preview-image" title="<?php echo esc_html($row->name); ?>" src="<?php echo esc_url($preview_image); ?>" width="60" height="60" />
+     </span>
+-    <?php echo $row->name; ?>
++    <?php echo esc_html($row->name); ?>
+   </a>
+   <?php if ( !$row->published ) { ?>
+ 
+@@ -137,7 +137,7 @@
+   <option><?php _e('-select-', WDS()->prefix); ?></option>
+   <?php foreach ( $params['rows'] as $row ) { ?>
+-    <option value="<?php echo $row->id; ?>"><?php echo $row->name; ?></option>
++    <option value="<?php echo esc_attr($row->id); ?>"><?php echo esc_html($row->name); ?></option>
+   <?php } ?>
+ </select>
+ 
+@@ -234,7 +234,7 @@
+   <div class="buttons_conteiner">
+     <h1 class="wp-heading-inline"><?php _e('Slider Title', WDS()->prefix); ?></h1>
+-    <input type="text" id="name" name="name" value="<?php echo $row->name; ?>" size="20" class="wds_requried" data-name="<?php _e('Slider title', WDS()->prefix); ?>" />
++    <input type="text" id="name" name="name" value="<?php echo esc_html($row->name); ?>" size="20" class="wds_requried" data-name="<?php _e('Slider title', WDS()->prefix); ?>" />
+     <div class="wds_buttons">
+       <button class="button button-primary button-large" onclick="spider_set_input_value('task', 'apply'); if(!wds_spider_ajax_save('sliders_form', event)) return false;">
 
-- if ( ! defined( 'ABSPATH' ) ) exit;
-+ if ( ! defined( 'ABSPATH' ) ) {
-+     exit;
-+ }
-
-if ( ! class_exists( 'um\core\Register' ) ) {
-
-	class Register {
-
--		function __construct() {
--			add_action( 'um_after_register_fields',  array( $this, 'add_nonce' ) );
--			add_action( 'um_submit_form_register', array( $this, 'verify_nonce' ), 1, 1 );
-+		public function __construct() {
-+			add_action( 'um_after_register_fields', array( $this, 'add_nonce' ) );
-+			add_action( 'um_submit_form_register', array( $this, 'verify_nonce' ), 1, 2 );
-		}
-
-		public function add_nonce() {
-			wp_nonce_field( 'um_register_form' );
-		}
-
-		/**
-		 * Verify nonce handler
-		 *
--		 * @param $args
--		 *
--		 * @return mixed
-+		 * @param array $args
-+		 * @param array $form_data
-		 */
--		public function verify_nonce( $args ) {
-+		public function verify_nonce( $args, $form_data ) {
-			
--			$allow_nonce_verification = apply_filters( 'um_register_allow_nonce_verification', true );
-+			$allow_nonce_verification = apply_filters( 'um_register_allow_nonce_verification', true, $form_data );
-
-			if ( ! $allow_nonce_verification  ) {
--				return $args;
-+				return;
-			}
-
--			if ( ! wp_verify_nonce( $args['_wpnonce'], 'um_register_form' ) || empty( $args['_wpnonce'] ) || ! isset( $args['_wpnonce'] ) ) {
--				$url = apply_filters( 'um_register_invalid_nonce_redirect_url', add_query_arg( [ 'err' => 'invalid_nonce' ] ) );
--				exit( wp_redirect( $url ) );
-+			if ( empty( $args['_wpnonce'] ) || ! wp_verify_nonce( $args['_wpnonce'], 'um_register_form' ) ) {
-+				// @todo add hookdocs
-+				$url = apply_filters( 'um_register_invalid_nonce_redirect_url', add_query_arg( array( 'err' => 'invalid_nonce' ) ) );
-+				wp_safe_redirect( $url );
-+				exit;
-			}
-
--			return $args;
-		}
-	}
-}
-?>
 ```

